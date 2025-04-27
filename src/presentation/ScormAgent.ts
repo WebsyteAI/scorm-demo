@@ -3,25 +3,28 @@ import { generateScormAsset } from "../application/ScormAssetService";
 
 export class ScormAgent extends Agent {
   async onRequest(request: Request) {
-    if (request.method !== "POST") {
-      return new Response("Method Not Allowed", { status: 405 });
+    const url = new URL(request.url);
+
+    // POST /scorm: generate and store zip, return download link
+    if (url.pathname === "/scorm" && request.method === "POST") {
+      const { title, content } = await request.json();
+      const zip = await generateScormAsset({ title, content });
+      await this.storage.put("scorm-zip", zip);
+      return Response.json({ downloadUrl: `/scorm/download/default` });
     }
-    let data;
-    try {
-      data = await request.json();
-    } catch {
-      return new Response("Invalid JSON", { status: 400 });
+
+    // GET /scorm/download/default: return stored zip
+    if (url.pathname === "/scorm/download/default" && request.method === "GET") {
+      const zip = await this.storage.get<Uint8Array>("scorm-zip");
+      if (!zip) return new Response("Not found", { status: 404 });
+      return new Response(zip, {
+        headers: {
+          "Content-Type": "application/zip",
+          "Content-Disposition": "attachment; filename=lesson-scorm.zip",
+        },
+      });
     }
-    const { title, content } = data;
-    if (!title || !content) {
-      return new Response("Missing title or content", { status: 400 });
-    }
-    const zip = await generateScormAsset({ title, content });
-    return new Response(zip, {
-      headers: {
-        "Content-Type": "application/zip",
-        "Content-Disposition": `attachment; filename=lesson-scorm.zip`,
-      },
-    });
+
+    return new Response("Not found", { status: 404 });
   }
 }
