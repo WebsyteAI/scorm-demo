@@ -1,11 +1,15 @@
-import { Hono } from "hono";
-import { ScormAgent } from "./presentation/ScormAgent";
-import { agents } from "agents";
+import { routeAgentRequest } from "agents";
+import type { ExecutionContext } from "@cloudflare/workers-types";
+import { Chat, agentContext } from "./agent";
 
-const app = new Hono();
+export { Chat, agentContext };
 
-// Register the agent(s) at /agents/ScormAgent
-app.route("/agents", agents({ ScormAgent }));
-
-export { ScormAgent };
-export default app;
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const agentResponse = await routeAgentRequest(request as any, env);
+    if (agentResponse) {
+      return agentResponse;
+    }
+    return new Response("Not found", { status: 404 });
+  },
+};
