@@ -21,7 +21,8 @@ export class ScormAgent extends Agent {
         return new Response("Missing title or content", { status: 400 });
       }
       const zip = await generateScormAsset({ title, content });
-      await this.state.put(`scorm-zip-${contextId}`, zip);
+      const zipBase64 = Buffer.from(zip).toString("base64");
+      await this.state.put(`scorm-zip-${contextId}`, zipBase64);
       return Response.json({ downloadUrl: `/scorm/download/${contextId}` });
     }
 
@@ -29,8 +30,9 @@ export class ScormAgent extends Agent {
     const downloadMatch = url.pathname.match(/^\/scorm\/download\/(.+)$/);
     if (downloadMatch && request.method === "GET") {
       const id = downloadMatch[1];
-      const zip = await this.state.get<Uint8Array>(`scorm-zip-${id}`);
-      if (!zip) return new Response("Not found", { status: 404 });
+      const zipBase64 = await this.state.get<string>(`scorm-zip-${id}`);
+      if (!zipBase64) return new Response("Not found", { status: 404 });
+      const zip = Uint8Array.from(Buffer.from(zipBase64, "base64"));
       return new Response(zip, {
         headers: {
           "Content-Type": "application/zip",
