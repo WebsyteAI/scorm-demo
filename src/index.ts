@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { agentsMiddleware } from "hono-agents";
+import { agentsMiddleware } from "agents";
 import { ScormAgent } from "./presentation/ScormAgent";
 
 const app = new Hono();

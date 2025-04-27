@@ -5,7 +5,8 @@
   "dependencies": {
     "hono": "^4",
     "wrangler": "^4",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "agents": "^0.0.46"
   },
   "scripts": {
     "start": "wrangler dev",
