@@ -22,7 +22,10 @@ export class ScormAgent extends Agent {
       }
       const zip = await generateScormAsset({ title, content });
       const zipBase64 = Buffer.from(zip).toString("base64");
-      await this.state.put(`scorm-zip-${contextId}`, zipBase64);
+      // Use this.setState to persist
+      const state = this.state || {};
+      state[`scorm-zip-${contextId}`] = zipBase64;
+      this.setState(state);
       return Response.json({ downloadUrl: `/scorm/download/${contextId}` });
     }
 
@@ -30,7 +33,8 @@ export class ScormAgent extends Agent {
     const downloadMatch = url.pathname.match(/^\/scorm\/download\/(.+)$/);
     if (downloadMatch && request.method === "GET") {
       const id = downloadMatch[1];
-      const zipBase64 = await this.state.get<string>(`scorm-zip-${id}`);
+      const state = this.state || {};
+      const zipBase64 = state[`scorm-zip-${id}`];
       if (!zipBase64) return new Response("Not found", { status: 404 });
       const zip = Uint8Array.from(Buffer.from(zipBase64, "base64"));
       return new Response(zip, {
