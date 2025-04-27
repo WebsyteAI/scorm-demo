@@ -1,0 +1,14 @@
+{
+  "name": "scorm-demo",
+  "compatibility_date": "2025-03-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      { "name": "ScormAgent", "class_name": "ScormAgent" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["ScormAgent"] }
+  ],
+  "observability": { "enabled": true }
+}
