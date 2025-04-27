@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SCORM Demo Generator</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2em auto; }
+    h1 { color: #2a4d7c; }
+    form { margin-bottom: 2em; }
+    label { display: block; margin-top: 1em; }
+    input, textarea { width: 100%; padding: 0.5em; margin-top: 0.2em; }
+    button { margin-top: 1em; padding: 0.7em 1.5em; background: #2a4d7c; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    .result { margin-top: 2em; }
+    .link { color: #1a7f37; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>SCORM Demo Generator</h1>
+  <form id="scorm-form">
+    <label>Lesson Title
+      <input type="text" name="title" required />
+    </label>
+    <label>Lesson Content
+      <textarea name="content" rows="6" required></textarea>
+    </label>
+    <button type="submit">Generate SCORM Package</button>
+  </form>
+  <div class="result" id="result"></div>
+  <script>
+    document.getElementById('scorm-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const title = form.title.value;
+      const content = form.content.value;
+      document.getElementById('result').innerHTML = 'Generating...';
+      const resp = await fetch('/scorm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content })
+      });
+      if (!resp.ok) {
+        document.getElementById('result').innerHTML = 'Error: ' + (await resp.text());
+        return;
+      }
+      const data = await resp.json();
+      document.getElementById('result').innerHTML =
+        'SCORM package ready: <a class="link" href="' + data.downloadUrl + '" target="_blank">Download SCORM Zip</a>';
+    });
+  </script>
+</body>
+</html>
