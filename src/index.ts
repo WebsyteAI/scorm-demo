@@ -1,8 +1,9 @@
 import { routeAgentRequest } from "agents";
 import type { ExecutionContext } from "@cloudflare/workers-types";
-import { Chat, agentContext } from "./agent";
+import { ScormAgent } from "./presentation/ScormAgent";
 
-export { Chat, agentContext };
+// Optionally, define agentContext if needed for env bindings
+export { ScormAgent };
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
