@@ -12,6 +12,18 @@ export interface ScormFile {
 }
 
 /**
+ * Extracts the generated text from the AI response according to the output schema.
+ */
+function extractAIText(aiResponse: any): string {
+  if (typeof aiResponse === 'string') return aiResponse;
+  if (aiResponse && typeof aiResponse.response === 'string') return aiResponse.response;
+  // fallback for other possible formats
+  if (aiResponse && aiResponse.message && typeof aiResponse.message.content === 'string') return aiResponse.message.content;
+  if (aiResponse && aiResponse.choices && aiResponse.choices[0] && aiResponse.choices[0].message && typeof aiResponse.choices[0].message.content === 'string') return aiResponse.choices[0].message.content;
+  return '';
+}
+
+/**
  * Generates SCORM files (imsmanifest.xml and index.html) using Cloudflare's AI service.
  * @param input Lesson input
  * @param env Worker environment (must include AI binding)
@@ -26,7 +38,7 @@ export async function generateScormFilesAI(input: ScormLessonInput, env: any): P
       { role: "user", content: htmlPrompt }
     ]
   });
-  const html = htmlResponse.message?.content || htmlResponse.choices?.[0]?.message?.content || "";
+  const html = extractAIText(htmlResponse);
 
   // 2. Generate imsmanifest.xml, using the generated index.html as context
   const manifestPrompt = `Generate a valid SCORM 1.2 imsmanifest.xml for a single lesson.\nLesson title: ${input.title}\nMain file: index.html\nHere is the full index.html content:\n-----\n${html}\n-----\nRequirements:\n- Use identifier SCORM_DEMO_1.\n- Organization identifier: ORG1.\n- Resource identifier: RES1.\n- Output only valid XML.`;
@@ -37,7 +49,7 @@ export async function generateScormFilesAI(input: ScormLessonInput, env: any): P
       { role: "user", content: manifestPrompt }
     ]
   });
-  const manifestXml = manifestResponse.message?.content || manifestResponse.choices?.[0]?.message?.content || "";
+  const manifestXml = extractAIText(manifestResponse);
 
   return [
     { path: "imsmanifest.xml", content: manifestXml.trim() },
