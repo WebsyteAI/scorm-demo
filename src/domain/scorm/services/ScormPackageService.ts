@@ -22,7 +22,7 @@ export async function generateScormFilesAI(input: ScormLessonInput, env: any): P
 
   const htmlStream = await env.AI.run("@cf/meta/llama-4-scout-17b-16e-instruct", {
     stream: false,
-    max_tokens: 2048,
+    max_tokens: 100000,
     messages: [
       { role: "system", content: "You are an expert in generating SCORM-compliant HTML and XML files." },
       { role: "user", content: htmlPrompt }
@@ -35,7 +35,7 @@ export async function generateScormFilesAI(input: ScormLessonInput, env: any): P
 
   const manifestStream = await env.AI.run("@cf/meta/llama-4-scout-17b-16e-instruct", {
     stream: false,
-    max_tokens: 2048,
+    max_tokens: 100000,
     messages: [
       { role: "system", content: "You are an expert in generating SCORM-compliant HTML and XML files." },
       { role: "user", content: manifestPrompt }
