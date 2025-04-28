@@ -48,3 +48,6 @@ export async function generateScormFilesAI(input: ScormLessonInput, env: any): P
     { path: "index.html", content: html.trim() },
   ];
 }
+
+// Remove legacy static generator
+// (No other exports)
