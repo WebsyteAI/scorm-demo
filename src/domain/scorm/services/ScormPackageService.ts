@@ -20,34 +20,27 @@ export async function generateScormFilesAI(input: ScormLessonInput, env: any): P
   // 1. Generate index.html
   const htmlPrompt = `Generate a minimal SCORM-compliant index.html for a lesson.\nLesson title: ${input.title}\nLesson content: ${input.content}\nRequirements:\n- Use <h1> for the title.\n- Place the lesson content in a <div>.\n- Do not include any scripts.\n- Output only valid HTML.`;
 
-  const htmlStream = await env.AI.run("@cf/meta/llama-4-scout-17b-16e-instruct", {
-    stream: false,
-    max_tokens: 100000,
+  const htmlResponse = await env.AI.run("@cf/meta/llama-4-scout-17b-16e-instruct", {
     messages: [
       { role: "system", content: "You are an expert in generating SCORM-compliant HTML and XML files." },
       { role: "user", content: htmlPrompt }
     ]
   });
-  const html = typeof htmlStream === 'string' ? htmlStream : await htmlStream.text();
+  const html = htmlResponse.message?.content || htmlResponse.choices?.[0]?.message?.content || "";
 
   // 2. Generate imsmanifest.xml, using the generated index.html as context
   const manifestPrompt = `Generate a valid SCORM 1.2 imsmanifest.xml for a single lesson.\nLesson title: ${input.title}\nMain file: index.html\nHere is the full index.html content:\n-----\n${html}\n-----\nRequirements:\n- Use identifier SCORM_DEMO_1.\n- Organization identifier: ORG1.\n- Resource identifier: RES1.\n- Output only valid XML.`;
 
-  const manifestStream = await env.AI.run("@cf/meta/llama-4-scout-17b-16e-instruct", {
-    stream: false,
-    max_tokens: 100000,
+  const manifestResponse = await env.AI.run("@cf/meta/llama-4-scout-17b-16e-instruct", {
     messages: [
       { role: "system", content: "You are an expert in generating SCORM-compliant HTML and XML files." },
       { role: "user", content: manifestPrompt }
     ]
   });
-  const manifestXml = typeof manifestStream === 'string' ? manifestStream : await manifestStream.text();
+  const manifestXml = manifestResponse.message?.content || manifestResponse.choices?.[0]?.message?.content || "";
 
   return [
     { path: "imsmanifest.xml", content: manifestXml.trim() },
     { path: "index.html", content: html.trim() },
   ];
 }
-
-// Remove legacy static generator
-// (No other exports)
