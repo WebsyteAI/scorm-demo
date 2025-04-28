@@ -3,6 +3,7 @@
   "main": "src/index.tsx",
   "compatibility_date": "2025-03-07",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "durable_objects": {
     "bindings": [
       { "name": "ScormAgent", "class_name": "ScormAgent" }
