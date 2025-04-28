@@ -20,7 +20,8 @@ export class ScormAgent extends Agent {
       if (!title || !content) {
         return new Response("Missing title or content", { status: 400 });
       }
-      const zip = await generateScormAsset({ title, content });
+      // Pass env to generateScormAsset for AI
+      const zip = await generateScormAsset({ title, content }, this.env);
       const zipBase64 = Buffer.from(zip).toString("base64");
       // Use this.setState to persist
       const state = this.state || {};
