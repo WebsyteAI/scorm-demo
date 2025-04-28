@@ -24,6 +24,7 @@ export async function generateScormFilesAI(input: ScormLessonInput, env: any): P
     model: workersai('@cf/meta/llama-4-scout-17b-16e-instruct'),
     system: systemMessage,
     prompt: htmlPrompt,
+    max_tokens: 100000,
   });
 
   // 2. Generate imsmanifest.xml, using the generated index.html as context
@@ -33,6 +34,7 @@ export async function generateScormFilesAI(input: ScormLessonInput, env: any): P
     model: workersai('@cf/meta/llama-4-scout-17b-16e-instruct'),
     system: systemMessage,
     prompt: manifestPrompt,
+    max_tokens: 100000,
   });
 
   return [
