@@ -30,8 +30,8 @@ export async function generateScormFilesAI(input: ScormLessonInput, env: any): P
   });
   const html = typeof htmlStream === 'string' ? htmlStream : await htmlStream.text();
 
-  // 2. Generate imsmanifest.xml
-  const manifestPrompt = `Generate a valid SCORM 1.2 imsmanifest.xml for a single lesson.\nLesson title: ${input.title}\nMain file: index.html\nRequirements:\n- Use identifier SCORM_DEMO_1.\n- Organization identifier: ORG1.\n- Resource identifier: RES1.\n- Output only valid XML.`;
+  // 2. Generate imsmanifest.xml, using the generated index.html as context
+  const manifestPrompt = `Generate a valid SCORM 1.2 imsmanifest.xml for a single lesson.\nLesson title: ${input.title}\nMain file: index.html\nHere is the full index.html content:\n-----\n${html}\n-----\nRequirements:\n- Use identifier SCORM_DEMO_1.\n- Organization identifier: ORG1.\n- Resource identifier: RES1.\n- Output only valid XML.`;
 
   const manifestStream = await env.AI.run("@cf/meta/llama-4-scout-17b-16e-instruct", {
     stream: false,
